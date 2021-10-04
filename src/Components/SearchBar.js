@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./SearchBar.css";
 import Button from "@mui/material/Button";
-import { getAllContacts } from "../utils";
+import { getAllContacts, deleteContacts } from "../utils";
 // import PersonIcon from "@mui/icons-material/Person";
 import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
@@ -12,24 +12,38 @@ export default function SearchBar() {
   const [Data, setData] = useState([]);
   const [rows, setRows] = useState([]);
   useEffect(() => {
+    getUsers();
+  }, []);
+
+  function getUsers() {
     getAllContacts()
       .then((data) => {
         setData(data);
-        // console.log(data.results[0]);
+        setRows(data);
       })
       .catch((err) => console.error(err));
-  }, []);
+  }
 
   const handlesearch = (searchdata) => {
     let new_array = [];
-    // let lower = searchdata;
-    !searchdata == ""
+    searchdata.length !== 0
       ? Data.filter((item) => {
-          // console.log(item.name.includes(searchdata));
           item.name.toLowerCase().includes(searchdata.toLowerCase()) &&
-            console.log(item.name);
+            new_array.push(item);
+          setRows(new_array);
         })
       : setRows(Data);
+  };
+
+  const handleDelete = (id) => {
+    let new_array = [];
+    // deleteContacts(id)
+    //   .then()
+    //   .catch((err) => console.error(err));
+    rows.filter((item) => {
+      item.id !== id && new_array.push(item);
+      setRows(new_array);
+    });
   };
 
   return (
@@ -41,23 +55,25 @@ export default function SearchBar() {
           </div>
           <div className="header-input">
             <h3>Contact List</h3>
-            <Button variant="contained" size="medium">
+            {/* <Button variant="contained" size="medium">
               Add
-            </Button>
+            </Button> */}
           </div>
           <div className="header-search">
             <input
               type="text"
               placeholder="Search..."
               onChange={(e) => {
-                // setSearchData(e.target.value);
+                // console.log(e.target.value);
+                // setRows([]);
+                e.preventDefault();
                 handlesearch(e.target.value);
               }}
             />
           </div>
           <div className="contact-list">
-            {Data.length !== 0 &&
-              Data.map((item) => {
+            {rows.length !== 0 &&
+              rows.map((item) => {
                 return (
                   <div key={item.id} className="contact-data">
                     <div className="logo">
@@ -66,14 +82,13 @@ export default function SearchBar() {
                     <div className="info">
                       <p>{item.name}</p>
                       <p>{item.email}</p>
-                      {!rows.length == 0 && console.log(rows)}
+                      {/* {!rows.length == 0 && console.log(rows)} */}
                     </div>
                     <div className="actions">
                       <p className="action">
-                        <EditIcon />
-                      </p>
-                      <p className="action">
-                        <DeleteForeverRoundedIcon />
+                        <DeleteForeverRoundedIcon
+                          onClick={() => handleDelete(item.id)}
+                        />
                       </p>
                     </div>
                   </div>
